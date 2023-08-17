@@ -1,1 +1,5 @@
-// comments
+class BookAuthors {
+
+}
+
+module.exports = BookAuthors

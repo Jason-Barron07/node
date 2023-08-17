@@ -1,6 +1,6 @@
 const db = require("../config");
 const {hash, compare, hashSync} = require('bcrypt')
-const {createToken} = require('../middleware/AuthenticateUser')
+const {createToken} = require("../middleware/AuthenticateUser")
 class Users {
   fetchUsers(req, res) {
     const query = `
@@ -31,10 +31,7 @@ class Users {
             })
         })
   }
-
-
-
-  async login(req, res) {
+  login(req, res) {
     const {emailAdd, userPass} = req.body
     // query
     const query = `
@@ -42,17 +39,17 @@ class Users {
     gender, userDOB, emailAdd, userPass,
     profileUrl
     FROM Users
-    WHERE emailAdd = ${emailAdd};
+    WHERE emailAdd = '${emailAdd}';
     `
     db.query(query, async (err, result)=>{
         if(err) throw err
-        if(!result?.length){
+        if(!result.length){
             res.json({
                 status: res.statusCode,
                 msg: "You provided a wrong email."
             })
         }else {
-            await compare(userPass,
+             compare(userPass,
                 result[0].userPass,
                 (cErr, cResult)=>{
                     if(cErr) throw cErr
@@ -63,7 +60,7 @@ class Users {
                         userPass
                     })
                     // Save a token
-                    res.cookie("LegitUser",
+                    res.cookie("MyLifeMyRules",
                     token, {
                         maxAge: 3600000,
                         httpOnly: true
@@ -85,39 +82,35 @@ class Users {
         }
     })
 }
-
-
-
   async register(req, res) {
-    const {emailAdd, userPass} = req.body
-    //Encrypt password
+    const data = req.body
+    //encrypt password
     data.userPass = await hash(data.userPass, 15)
-
-    //Payload
-    const user  = {
-        emailAdd:data.emailAdd,
-        userPass:data.userPass
+    //payload
+    const user = {
+        emailAdd: data.emailAdd,
+        userPass: data.userPass
     }
+    //query
     const query = `
-    INSERT INTO Users 
-    SET ?`
-
-    db.query(query,[data], (err) => {
-        if(err) throw err 
+    INSERT INTO Users
+    SET ?
+    `
+    db.query(query, [data], (err)=>{
+        if(err) throw err
+        //create token
         let token = createToken(user)
-        res.cookie("ChocolateChip", token, 
+        res.cookie("LegitUser", token,
         {
             maxAge: 3600000,
-            httpOnly:true
+            httpOnly: true
         })
-        +
         res.json({
-            status:res.statusCode,
-            meg:"You are now registered"
+            status: res.statusCode,
+            msg: "Registration Complete"
         })
     })
   }
-
   updateUser(req, res) {
     const query = `
     UPDATE Users
@@ -148,5 +141,15 @@ class Users {
     })
   }
 }
-
 module.exports = Users
+
+
+
+
+
+
+
+
+
+
+

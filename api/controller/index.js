@@ -1,8 +1,9 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const {verifyAToken} = require('../middleware/AuthenticateUser')
 const routes = express.Router();
 //import all model's objects
-const { users } = require("../model");
+const { users, books, authors, orders } = require("../model");
 //Users router
 routes.get("/users", (req, res) => {
   users.fetchUsers(req, res);
@@ -12,7 +13,7 @@ routes.get("/user/:id", (req, res) => {
   users.fetchUser(req, res);
 });
 
-routes.post("register", bodyParser.json(), (req, res) => {
+routes.post("/register", bodyParser.json(), (req, res) => {
   users.register(req, res);
 });
 
@@ -35,5 +36,6 @@ bodyParser.json(), (req, res)=>{
 
 module.exports = {
     express,
-    routes
+    routes,
+    verifyAToken
 }
